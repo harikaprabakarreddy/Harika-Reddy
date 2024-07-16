@@ -1,0 +1,87 @@
+class Product:
+    def _init_(self, product_id, name, price, category, supplier):
+        self.product_id = product_id
+        self.name = name
+        self.price = price
+        self.category = category
+        self.supplier = supplier
+
+
+class Warehouse:
+    def _init_(self, warehouse_id, address, capacity):
+        self.warehouse_id = warehouse_id
+        self.address = address
+        self.capacity = capacity
+
+
+class StockLevel:
+    def _init_(self, product, warehouse, quantity, expiration_date=None):
+        self.product = product
+        self.warehouse = warehouse
+        self.quantity = quantity
+        self.expiration_date = expiration_date
+
+
+class InventoryTracker:
+    def _init_(self):
+        self.products = []
+        self.warehouses = []
+        self.stock_levels = []
+
+    def add_product(self, product):
+        self.products.append(product)
+
+    def add_warehouse(self, warehouse):
+        self.warehouses.append(warehouse)
+
+    def add_stock_level(self, stock_level):
+        self.stock_levels.append(stock_level)
+
+    def get_stock_level(self, product_id):
+        stock_level = next(
+            (sl for sl in self.stock_levels if sl.product.product_id == product_id), None
+        )
+        return stock_level.quantity if stock_level else 0
+
+    def get_reorder_recommendations(self, threshold):
+        recommendations = []
+        for stock_level in self.stock_levels:
+            if stock_level.quantity < threshold:
+                recommendations.append(stock_level.product)
+        return recommendations
+
+
+# Example usage
+inventory_tracker = InventoryTracker()
+
+# Add products
+product1 = Product("P1", "Product 1", 10.99, "Category 1", "Supplier 1")
+product2 = Product("P2", "Product 2", 15.99, "Category 2", "Supplier 2")
+inventory_tracker.add_product(product1)
+inventory_tracker.add_product(product2)
+
+# Add warehouses
+warehouse1 = Warehouse("W1", "Address 1", 1000)
+warehouse2 = Warehouse("W2", "Address 2", 500)
+inventory_tracker.add_warehouse(warehouse1)
+inventory_tracker.add_warehouse(warehouse2)
+
+# Add stock levels
+stock_level1 = StockLevel(product1, warehouse1, 50)
+stock_level2 = StockLevel(product2, warehouse1, 20)
+stock_level3 = StockLevel(product1, warehouse2, 30)
+inventory_tracker.add_stock_level(stock_level1)
+inventory_tracker.add_stock_level(stock_level2)
+inventory_tracker.add_stock_level(stock_level3)
+
+# Check stock level for a product
+product_id = "P1"
+stock_level = inventory_tracker.get_stock_level(product_id)
+print(f"Stock level for product {product_id}: {stock_level}")
+
+# Get reorder recommendations
+threshold = 40
+recommendations = inventory_tracker.get_reorder_recommendations(threshold)
+print("Reorder recommendations:")
+for product in recommendations:
+    print(f"- {product.name}")
